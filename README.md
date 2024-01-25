@@ -6,7 +6,7 @@ The hard work demystifying the movement physics of SMB3, was done by NES Hacker,
 
 Please consider subscribing to NES Hacker, the guy is awesome :D
 
-This project is an implementation written in Go programming language and uses `pixel/v2` library.
+This project is an implementation written in Go programming language and uses Ebitenengine.
 
 ## How to play
 
