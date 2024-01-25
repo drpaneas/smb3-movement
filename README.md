@@ -1,12 +1,12 @@
 # Super Mario Bros 3 Movement in Go
 
-This project is a simple example of how to use the EbitenEngine to program the physics of a platformer game inspired by the movement of Super Mario Bros 3. Although the movement is not 100% identical, it has the very same feeling of SMB3.
+This project is a simple example of how to use the Ebitengine to program the physics of a platformer game inspired by the movement of Super Mario Bros 3. Although the movement is not 100% identical, it has the very same feeling of SMB3.
 
 The hard work demystifying the movement physics of SMB3, was done by NES Hacker, who wrote the assembly NES code. You can find his source code [here](https://github.com/NesHacker/PlatformerMovement/), and a video explaining it as well [here](https://www.youtube.com/watch?v=ZuKIUjw_tNU).
 
 Please consider subscribing to NES Hacker, the guy is awesome :D
 
-This project is an implementation written in Go programming language and uses Ebitenengine.
+This project is an implementation written in Go programming language and uses Ebitengine.
 
 ## How to play
 
