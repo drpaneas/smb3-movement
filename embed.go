@@ -6,7 +6,7 @@ import (
 	"image"
 	_ "image/png"
 
-	"github.com/gopxl/pixel/v2"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 //go:embed sprites/mario0.png
@@ -28,12 +28,12 @@ var mario4 []byte
 var background []byte
 
 // loadPicture loads a picture from a file on the disk
-func loadPicture(file []byte) (pixel.Picture, error) {
+func loadPicture(file []byte) (*ebiten.Image, error) {
 
 	img, _, err := image.Decode(bytes.NewReader(file))
 	if err != nil {
 		return nil, err
 	}
 
-	return pixel.PictureDataFromImage(img), nil
+	return ebiten.NewImageFromImage(img), nil
 }

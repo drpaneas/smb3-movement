@@ -3,11 +3,11 @@ package main
 import (
 	"math"
 
-	"github.com/gopxl/pixel/v2"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
-	FloorHeight    = 17 + 8 // 17 is the height of the floor and 8 (16/2) is half height of the sprite (anchor point is in the middle)
+	FloorHeight    = screenHeight - 17 - 16 // 17 is the height of the floor and 8 (16/2) is half height of the sprite (anchor point is in the middle)
 	InitialSpriteY = FloorHeight
 	InitialSpriteX = 30
 )
@@ -15,20 +15,18 @@ const (
 // X and Y should be in the same unit that Draw function supports in the GoPXL library
 type Sprite struct {
 	Y, X  int
-	SPR   *pixel.Sprite
+	SPR   *ebiten.Image
 	HFlip bool
-	Mat   pixel.Matrix
 }
 
 // NewSprite creates a new sprite instance  with the given pictures
-func NewSprite(pic [5]pixel.Picture) *Sprite {
+func NewSprite(pic [5]*ebiten.Image) *Sprite {
 
 	sp := &Sprite{
 		Y:     InitialSpriteY,
 		HFlip: false,
 		X:     InitialSpriteX,
-		SPR:   pixel.NewSprite(pic[0], pic[0].Bounds()),
-		Mat:   pixel.IM,
+		SPR:   ebiten.NewImageFromImage(pic[0]),
 	}
 
 	return sp
@@ -182,21 +180,22 @@ func (p *Player) updateSpriteTiles() {
 
 	// Set the sprite to the current tile
 	pic := p.Pictures[tiles[index]]
-	p.Sprite.SPR.Set(pic, pic.Bounds())
+	p.Sprite.SPR = ebiten.NewImageFromImage(pic)
 
-	// Set the sprite position
-	screenPosition := pixel.V(float64(p.Sprite.X), float64(p.Sprite.Y))
-	p.Sprite.Mat = pixel.IM.Moved(screenPosition)
-
-	// NOTE: Flip the sprite if the player is facing left
-	if p.Sprite.HFlip {
-		// convert degrees to radians using math standard library
-		flipLeft := pixel.IM.Rotated(screenPosition, 180*math.Pi/180)
-		p.Sprite.Mat = p.Sprite.Mat.Chained(flipLeft)
-
-		flipVertical := pixel.IM.ScaledXY(screenPosition, pixel.V(1, -1))
-		p.Sprite.Mat = p.Sprite.Mat.Chained(flipVertical)
-	}
+	// // NOTE: Flip the sprite if the player is facing left
+	// if p.Sprite.HFlip {
+	// 	op := &ebiten.DrawImageOptions{}
+	// 	op.GeoM.Translate(float64(p.Sprite.X), float64(p.Sprite.X))
+	// 	op.GeoM.Scale(-1, 1)
+	// 	op.GeoM.Translate(-float64(pic.Bounds().Dx()), 0)
+	// 	op.Filter = ebiten.FilterNearest
+	// 	p.Sprite.SPR.DrawImage(pic, op)
+	// } else {
+	// 	op := &ebiten.DrawImageOptions{}
+	// 	op.GeoM.Translate(float64(p.Sprite.X), float64(p.Sprite.X))
+	// 	op.Filter = ebiten.FilterNearest
+	// 	p.Sprite.SPR.DrawImage(pic, op)
+	// }
 
 	// Now the sprite is ready to be drawn (rendered to the screen)
 }

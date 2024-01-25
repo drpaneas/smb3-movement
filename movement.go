@@ -55,6 +55,7 @@ func (p *Player) updateJumpVelocity(j Joypad) {
 
 	// the velocity decreases by the deceleration rate, until it reaches the maximum fall speed
 	p.VelocityY -= decelerate
+
 	// Has it reached the maximum falling speed?
 	if p.VelocityY <= p.JumpMaxFallSpeed {
 		p.VelocityY = p.JumpMaxFallSpeed
@@ -63,7 +64,7 @@ func (p *Player) updateJumpVelocity(j Joypad) {
 
 // applyVelocityY applies the vertical velocity to the vertical position of the player
 func (p *Player) applyVelocityY() {
-	p.PositionY += p.VelocityY
+	p.PositionY -= p.VelocityY
 }
 
 func (p *Player) boundPositionY() {
@@ -71,7 +72,7 @@ func (p *Player) boundPositionY() {
 	p.Sprite.Y = int(SubpixelsToPx(p.PositionY))
 
 	// Check to see if the player has landed
-	if p.Sprite.Y <= FloorHeight {
+	if p.Sprite.Y >= FloorHeight {
 		// Land by re-initializing the Y variables and resetting the motion state
 		p.ResetY()
 		p.MotionState = Idle
@@ -139,7 +140,7 @@ func (p *Player) applyVelocityX() {
 
 const (
 	SpriteWidth = 16
-	RightBound  = ScreenWidth - SpriteWidth/2 - 8
+	RightBound  = screenWidth - SpriteWidth/2 - 8
 	LeftBound   = SpriteWidth/2 + 8 // anchor for the player is at the middle
 )
 

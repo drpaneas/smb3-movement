@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gopxl/pixel/v2"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // MotionState is the state of the player
@@ -34,7 +34,7 @@ const (
 
 type Player struct {
 	// Sprites
-	Pictures [5]pixel.Picture // 5 animation frames
+	Pictures [5]*ebiten.Image // 5 animation frames
 	Sprite   Sprite
 
 	// X axis
@@ -64,7 +64,7 @@ type Player struct {
 // NewPlayer creates a new player instance and loads the sprites from the binary data
 func NewPlayer() *Player {
 	// Initialize sprites from binary data
-	pic := [5]pixel.Picture{}
+	pic := [5]*ebiten.Image{}
 	marioSprites := [5][]byte{mario0, mario1, mario2, mario3, mario4}
 	for i := 0; i < 5; i++ {
 		var err error
