@@ -52,8 +52,14 @@ type Player struct {
 	JumpMaxFallSpeed    spx
 
 	// States
-	MotionState MotionState
-	IdleState   IdleState
+	idle         State
+	jumping      State
+	walking      State
+	running      State
+	pivoting     State
+	currentState State
+	MotionState  MotionState
+	IdleState    IdleState
 
 	// Animation
 	AnimationFrame int
@@ -76,7 +82,7 @@ func NewPlayer() *Player {
 
 	sprite := NewSprite(pic)
 
-	return &Player{
+	player := &Player{
 		// Initialize sprites
 		Pictures: pic,
 		Sprite:   *sprite,
@@ -104,6 +110,8 @@ func NewPlayer() *Player {
 		AnimationTimer: delayByVelocity[0],
 		IdleTimer:      timers[0],
 	}
+
+	return player
 }
 
 // ResetY resets the Y position and velocity of the player
@@ -112,4 +120,8 @@ func (p *Player) ResetY() {
 	p.Sprite.Y = InitialSpriteY
 	p.PositionY = PxToSubpixels(px(InitialSpriteY))
 	p.VelocityY = 0
+}
+
+func (p *Player) setState(s State) {
+	p.currentState = s
 }

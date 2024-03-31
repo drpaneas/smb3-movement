@@ -31,6 +31,8 @@ func (p *Player) updateVerticalMotion(j Joypad) {
 		// if the player is airborne, then he is going to fall in this frame
 		p.updateJumpVelocity(j)
 		p.applyVelocityY()
+		// Convert from subpixels into screen coordinates
+		p.Sprite.Y = int(SubpixelsToPx(p.PositionY))
 		p.boundPositionY()
 	}
 }
@@ -68,14 +70,12 @@ func (p *Player) applyVelocityY() {
 }
 
 func (p *Player) boundPositionY() {
-	// Convert from subpixels into screen coordinates
-	p.Sprite.Y = int(SubpixelsToPx(p.PositionY))
-
 	// Check to see if the player has landed
 	if p.Sprite.Y >= FloorHeight {
 		// Land by re-initializing the Y variables and resetting the motion state
 		p.ResetY()
 		p.MotionState = Idle
+		p.setState(p.idle)
 	}
 }
 
@@ -88,6 +88,7 @@ func (p *Player) updateHorizontalMotion(j Joypad) {
 	p.setTargetXVelocity(j)
 	p.accelerateX(j)
 	p.applyVelocityX()
+	p.Sprite.X = int(SubpixelsToPx(p.PositionX)) // Convert subpixels to screen coordinates
 	p.boundPositionX()
 }
 
@@ -148,7 +149,6 @@ const (
 // and if so, re-initializes the X variables and sets the X velocity to 0
 // to stop the player from moving.
 func (p *Player) boundPositionX() {
-	p.Sprite.X = int(SubpixelsToPx(p.PositionX)) // Convert subpixels to screen coordinates
 
 	// Check to see if the player has hit the screen boundaries
 	if p.Sprite.X > RightBound {

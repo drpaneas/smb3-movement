@@ -34,7 +34,7 @@ func NewSprite(pic [5]*ebiten.Image) *Sprite {
 
 // updateSprite updates the sprite of the player
 func (p *Player) updateSprite(j Joypad) {
-	p.updateMotionState(j)
+	// p.updateMotionState(j)
 	p.updateAnimationFrame()
 	p.updateHeading()
 	p.updateIdleState()
@@ -181,21 +181,4 @@ func (p *Player) updateSpriteTiles() {
 	// Set the sprite to the current tile
 	pic := p.Pictures[tiles[index]]
 	p.Sprite.SPR = ebiten.NewImageFromImage(pic)
-
-	// // NOTE: Flip the sprite if the player is facing left
-	// if p.Sprite.HFlip {
-	// 	op := &ebiten.DrawImageOptions{}
-	// 	op.GeoM.Translate(float64(p.Sprite.X), float64(p.Sprite.X))
-	// 	op.GeoM.Scale(-1, 1)
-	// 	op.GeoM.Translate(-float64(pic.Bounds().Dx()), 0)
-	// 	op.Filter = ebiten.FilterNearest
-	// 	p.Sprite.SPR.DrawImage(pic, op)
-	// } else {
-	// 	op := &ebiten.DrawImageOptions{}
-	// 	op.GeoM.Translate(float64(p.Sprite.X), float64(p.Sprite.X))
-	// 	op.Filter = ebiten.FilterNearest
-	// 	p.Sprite.SPR.DrawImage(pic, op)
-	// }
-
-	// Now the sprite is ready to be drawn (rendered to the screen)
 }
