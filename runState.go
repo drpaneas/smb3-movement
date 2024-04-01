@@ -32,7 +32,6 @@ func (s *RunState) updateTargetVelocity() {
 		s.player.TargetVelocityX = 40
 	} else if (s.input.HoldDown[Right] || s.input.HoldDown[Left]) && !s.input.HoldDown[B] {
 		s.player.setState(s.player.walking)
-		s.player.MotionState = Walk
 	} else {
 		s.player.TargetVelocityX = 0
 	}
@@ -45,7 +44,6 @@ func (s *RunState) updateVelocity() {
 		s.player.VelocityX -= accelerationX
 	} else if s.player.VelocityX == 0 {
 		s.player.setState(s.player.idle)
-		s.player.MotionState = Idle
 	}
 }
 
@@ -59,26 +57,22 @@ func (s *RunState) checkBoundaries() {
 		s.player.Sprite.X = RightBound
 		s.player.PositionX = PxToSubpixels(px(RightBound))
 		s.player.setState(s.player.idle)
-		s.player.MotionState = Idle
 	} else if s.player.Sprite.X < LeftBound {
 		s.player.Sprite.X = LeftBound
 		s.player.PositionX = PxToSubpixels(px(LeftBound))
 		s.player.setState(s.player.idle)
-		s.player.MotionState = Idle
 	}
 }
 
 func (s *RunState) checkJump() {
 	if s.input.JustPressed[A] {
 		s.player.setState(s.player.jumping)
-		s.player.MotionState = Airborne
 	}
 }
 
 func (s *RunState) checkPivot() {
 	if (s.input.HoldDown[Left] || s.input.HoldDown[Right] || s.input.JustPressed[Left] || s.input.JustPressed[Right]) &&
 		((s.player.TargetVelocityX > 0 && s.player.VelocityX < 0) || (s.player.TargetVelocityX < 0 && s.player.VelocityX > 0)) {
-		s.player.MotionState = Pivot
 		s.player.setState(s.player.pivoting)
 	}
 }

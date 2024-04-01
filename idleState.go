@@ -35,16 +35,13 @@ func (s *HasIdleState) Update() {
 
 func (s *HasIdleState) transitionToJumping() {
 	s.player.setState(s.player.jumping)
-	s.player.MotionState = Airborne
 }
 
 func (s *HasIdleState) transitionToWalking() {
 	s.player.setState(s.player.walking)
-	s.player.MotionState = Walk
 }
 
 func (s *HasIdleState) transitionToRunning(targetVelocityX spx) {
 	s.player.setState(s.player.running)
-	s.player.MotionState = Walk
 	s.player.TargetVelocityX = targetVelocityX
 }

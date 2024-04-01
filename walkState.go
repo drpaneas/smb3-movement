@@ -40,7 +40,6 @@ func (ws *WalkState) updateTargetVelocity() {
 func (ws *WalkState) updateVelocity() {
 	if ws.input.HoldDown[B] {
 		ws.player.setState(ws.player.running)
-		ws.player.MotionState = Walk
 		return
 	}
 
@@ -52,7 +51,6 @@ func (ws *WalkState) updateVelocity() {
 	default:
 		if ws.player.VelocityX == 0 {
 			ws.player.setState(ws.player.idle)
-			ws.player.MotionState = Idle
 		}
 	}
 }
@@ -68,13 +66,11 @@ func (ws *WalkState) checkBoundaries() {
 		ws.player.Sprite.X = RightBound
 		ws.player.PositionX = PxToSubpixels(px(RightBound))
 		ws.player.setState(ws.player.idle)
-		ws.player.MotionState = Idle
 		ws.player.VelocityX = 0
 	case ws.player.Sprite.X < LeftBound:
 		ws.player.Sprite.X = LeftBound
 		ws.player.PositionX = PxToSubpixels(px(LeftBound))
 		ws.player.setState(ws.player.idle)
-		ws.player.MotionState = Idle
 		ws.player.VelocityX = 0
 	}
 }
@@ -82,14 +78,12 @@ func (ws *WalkState) checkBoundaries() {
 func (ws *WalkState) handleJump() {
 	if ws.input.JustPressed[A] {
 		ws.player.setState(ws.player.jumping)
-		ws.player.MotionState = Airborne
 	}
 }
 
 func (ws *WalkState) handlePivot() {
 	if (ws.input.HoldDown[Left] || ws.input.HoldDown[Right] || ws.input.JustPressed[Left] || ws.input.JustPressed[Right]) &&
 		((ws.player.TargetVelocityX > 0 && ws.player.VelocityX < 0) || (ws.player.TargetVelocityX < 0 && ws.player.VelocityX > 0)) {
-		ws.player.MotionState = Pivot
 		ws.player.setState(ws.player.pivoting)
 	}
 }

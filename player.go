@@ -14,17 +14,6 @@ const (
 	Airborne                    // Jumping or falling (not on the ground basically)
 )
 
-// IdleState is the state of the player when idle
-// He closes his eyes (blinks) and opens them every now and then
-type IdleState int
-
-const (
-	Still IdleState = iota
-	Blink1
-	Still2
-	Blink2
-)
-
 type Heading int
 
 const (
@@ -58,8 +47,6 @@ type Player struct {
 	running      State
 	pivoting     State
 	currentState State
-	MotionState  MotionState
-	IdleState    IdleState
 
 	// Animation
 	AnimationFrame int
@@ -101,14 +88,9 @@ func NewPlayer() *Player {
 		JumpInitialVelocity: 55,  // 55
 		MaxFallSpeed:        -64, // -64
 
-		// State Machines
-		MotionState: Idle,
-		IdleState:   Still,
-
 		// Keyframes and animations
 		AnimationFrame: 0,
 		AnimationTimer: delayByVelocity[0],
-		IdleTimer:      timers[0],
 	}
 
 	return player

@@ -37,11 +37,9 @@ func (s *JumpState) boundCheck() {
 		if s.player.VelocityX != 0 {
 			s.isFirstJumpFrame = true
 			s.player.setState(s.player.walking)
-			s.player.MotionState = Walk
 		} else {
 			s.isFirstJumpFrame = true
 			s.player.setState(s.player.idle)
-			s.player.MotionState = Idle
 		}
 	}
 }

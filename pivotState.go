@@ -39,10 +39,8 @@ func (s *HasPivotState) updateVelocity() {
 func (s *HasPivotState) transitionState() {
 	if s.input.HoldDown[Left] || s.input.HoldDown[Right] {
 		s.player.setState(s.player.walking)
-		s.player.MotionState = Walk
 	} else {
 		s.player.setState(s.player.idle)
-		s.player.MotionState = Idle
 	}
 }
 
@@ -57,6 +55,5 @@ func (s *HasPivotState) updateSpritePosition() {
 func (s *HasPivotState) checkJump() {
 	if s.input.JustPressed[A] {
 		s.player.setState(s.player.jumping)
-		s.player.MotionState = Airborne
 	}
 }

@@ -33,33 +33,11 @@ func NewSprite(pic [5]*ebiten.Image) *Sprite {
 }
 
 // updateSprite updates the sprite of the player
-func (p *Player) updateSprite(j Joypad) {
+func (p *Player) updateSprite() {
 	// p.updateMotionState(j)
 	p.updateAnimationFrame()
 	p.updateHeading()
-	p.updateIdleState()
 	p.updateSpriteTiles()
-}
-
-// updateMotionState updates the motion state of the player
-// based on the current motion state and the target velocity of the player
-func (p *Player) updateMotionState(j Joypad) {
-	if p.MotionState < Airborne {
-		if p.Sprite.X == 0 {
-			p.MotionState = Idle
-		} else if p.TargetVelocityX == p.VelocityX {
-			if p.VelocityX == 0 {
-				p.MotionState = Idle
-			} else {
-				p.MotionState = Walk
-			}
-		} else if (j.HoldDown[Left] || j.HoldDown[Right] || j.JustPressed[Left] || j.JustPressed[Right]) &&
-			((p.TargetVelocityX > 0 && p.VelocityX < 0) || (p.TargetVelocityX < 0 && p.VelocityX > 0)) {
-			p.MotionState = Pivot
-		} else {
-			p.MotionState = Walk
-		}
-	}
 }
 
 // updateAnimationFrame updates the animation frame of the player
@@ -121,31 +99,6 @@ func (p *Player) updateHeading() {
 	}
 }
 
-// the number of frames to wait before transitioning to the next idlestate
-// 245 - is the number of frames to wait in the initial idle state.
-// if the player character remains idle for this many frames, it will transition to the next idle state.
-//
-// 10 - is the number of frames to wait in each subsequent idle state
-var timers = []int{245, 10, 10, 10}
-
-// updateIdleState updates the idle state of the player
-func (p *Player) updateIdleState() {
-
-	if p.MotionState != Idle {
-		p.IdleTimer = timers[0]
-		p.IdleState = Still
-	} else {
-		p.IdleTimer--
-		if p.IdleTimer == 0 {
-			p.IdleState++
-			if int(p.IdleState) >= len(timers) {
-				p.IdleState = 0
-			}
-			p.IdleTimer = timers[p.IdleState]
-		}
-	}
-}
-
 // updateSpriteTiles updates the sprite tiles of the player
 // based on the current motion state and animation frame of the player
 func (p *Player) updateSpriteTiles() {
@@ -155,7 +108,7 @@ func (p *Player) updateSpriteTiles() {
 		jumpingTiles = []int{4}
 		pivotTiles   = []int{2}
 		walkTiles    = []int{0, 3}
-		idleTiles    = []int{0, 1, 0, 1}
+		idleTiles    = []int{0}
 
 		// The index of the tile to use for the current frame
 		tiles []int
@@ -163,17 +116,20 @@ func (p *Player) updateSpriteTiles() {
 	)
 
 	// Set the tiles and index based on the current motion state
-	switch p.MotionState {
-	case Idle:
+	switch p.currentState {
+	case p.idle:
 		tiles = idleTiles
-		index = int(p.IdleState)
-	case Airborne:
+		index = 0
+	case p.jumping:
 		tiles = jumpingTiles
 		index = 0
-	case Walk:
+	case p.walking:
 		tiles = walkTiles
 		index = p.AnimationFrame
-	case Pivot:
+	case p.running:
+		tiles = walkTiles
+		index = p.AnimationFrame
+	case p.pivoting:
 		tiles = pivotTiles
 		index = 0
 	}

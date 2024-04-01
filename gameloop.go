@@ -6,11 +6,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const (
+	SpriteWidth = 16
+	RightBound  = screenWidth - SpriteWidth/2 - 8
+	LeftBound   = SpriteWidth/2 + 8 // anchor for the player is at the middle
+)
+
 func (g *Game) Update() error {
-	g.joypad.Update() // 1. Get input from the keyboard or the gamepad
-	g.player.currentState.Update()
-	// g.player.updateMovement(g.joypad) // 2. Update the player's movement
-	g.player.updateSprite(g.joypad) // 3. Update the player's sprite & animation keyframes
+	g.joypad.Update()              // 1. Get input from the keyboard or the gamepad
+	g.player.currentState.Update() // 2. Update the player state movement (physics)
+	g.player.updateSprite()        // 3. Update the player's sprite & animation keyframes
 
 	if g.player.currentState == g.player.idle {
 		fmt.Println("idle")
