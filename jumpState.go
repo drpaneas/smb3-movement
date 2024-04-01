@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // JumpState is the airborn state of Mario from the moment the player is in the air until it lands back down to the ground
 type JumpState struct {
 	player               *Player
@@ -45,17 +47,18 @@ func (s *JumpState) boundCheck() {
 }
 
 func (s *JumpState) updateMidAir() {
+	fmt.Printf("Target: %v, Current: %v\n", s.player.TargetVelocityX, s.player.VelocityX)
 	if s.input.HoldDown[Left] && s.player.VelocityX > 0 {
 		s.player.VelocityX -= 1
 	} else if s.input.HoldDown[Right] && s.player.VelocityX < 0 {
 		s.player.VelocityX += 1
-	} else if s.input.HoldDown[Left] && s.player.VelocityX < 0 {
+	} else if s.input.HoldDown[Left] && s.player.VelocityX <= 0 {
 		if s.player.VelocityX > s.player.TargetVelocityX {
-			s.player.VelocityX -= 0.5 // walk left
+			s.player.VelocityX -= 1.5 // move left at the air
 		}
-	} else if s.input.HoldDown[Right] && s.player.VelocityX > 0 {
+	} else if s.input.HoldDown[Right] && s.player.VelocityX >= 0 {
 		if s.player.VelocityX < s.player.TargetVelocityX {
-			s.player.VelocityX += 0.5 // walk right
+			s.player.VelocityX += 1.5 // move right at the air
 		}
 	}
 }
@@ -88,6 +91,8 @@ func (s *JumpState) updateVerticalMotion() {
 }
 
 func (s *JumpState) updateHorizontalMotion() {
+	s.updateTargetVelocity()
+
 	// Check for direction change mid-air
 	if s.player.PositionY > FloorHeight {
 		s.updateMidAir()
@@ -96,5 +101,15 @@ func (s *JumpState) updateHorizontalMotion() {
 	// Update the PositionX and apply it into the Sprite's screen coordinates
 	s.player.PositionX += s.player.VelocityX
 	s.player.Sprite.X = int(SubpixelsToPx(s.player.PositionX)) // Convert subpixels to screen coordinates
+}
 
+func (js *JumpState) updateTargetVelocity() {
+	switch {
+	case js.input.HoldDown[Left]:
+		js.player.TargetVelocityX = -walkSpeed
+	case js.input.HoldDown[Right]:
+		js.player.TargetVelocityX = walkSpeed
+	default:
+		js.player.TargetVelocityX = 0
+	}
 }
