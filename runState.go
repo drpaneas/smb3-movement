@@ -51,7 +51,7 @@ func (i *HasRunState) Update() {
 		i.player.MotionState = Idle
 	}
 
-	if i.input.HoldDown[A] {
+	if i.input.JustPressed[A] {
 		i.player.setState(i.player.jumping)
 		i.player.MotionState = Airborne
 

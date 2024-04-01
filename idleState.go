@@ -10,7 +10,7 @@ func (i *HasIdleState) Update() {
 	i.player.VelocityY = 0
 
 	// Change into Jumping state
-	if i.input.HoldDown[A] {
+	if i.input.JustPressed[A] {
 		i.player.setState(i.player.jumping)
 		i.player.MotionState = Airborne
 	}
