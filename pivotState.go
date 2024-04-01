@@ -5,35 +5,51 @@ type HasPivotState struct {
 	input  *Joypad
 }
 
-func (i *HasPivotState) Update() {
+func (s *HasPivotState) Update() {
+	s.updateVelocity()
+	s.updatePosition()
+	s.updateSpritePosition()
+	s.checkJump()
+}
 
-	if i.player.VelocityX < i.player.TargetVelocityX {
-		i.player.VelocityX += 1.5 // walk right
-		if i.player.VelocityX > 0 {
-			if i.input.HoldDown[Left] || i.input.HoldDown[Right] {
-				i.player.setState(i.player.walking)
-				i.player.MotionState = Walk
-			} else {
-				i.player.setState(i.player.idle)
-				i.player.MotionState = Idle
-			}
+func (s *HasPivotState) updateVelocity() {
+	const walkSpeed = 1.5
+
+	switch {
+	case s.player.VelocityX < s.player.TargetVelocityX:
+		s.player.VelocityX += walkSpeed
+		if s.player.VelocityX > 0 {
+			s.transitionState()
 		}
-	} else if i.player.VelocityX > i.player.TargetVelocityX {
-		i.player.VelocityX -= 1.5 // walk left
-		if i.player.VelocityX < 0 {
-			if i.input.HoldDown[Left] || i.input.HoldDown[Right] {
-				i.player.setState(i.player.walking)
-				i.player.MotionState = Walk
-			} else {
-				i.player.setState(i.player.idle)
-				i.player.MotionState = Idle
-			}
+	case s.player.VelocityX > s.player.TargetVelocityX:
+		s.player.VelocityX -= walkSpeed
+		if s.player.VelocityX < 0 {
+			s.transitionState()
 		}
 	}
+}
 
-	// Apply the velocity
-	i.player.PositionX += i.player.VelocityX
+func (s *HasPivotState) transitionState() {
+	if s.input.HoldDown[Left] || s.input.HoldDown[Right] {
+		s.player.setState(s.player.walking)
+		s.player.MotionState = Walk
+	} else {
+		s.player.setState(s.player.idle)
+		s.player.MotionState = Idle
+	}
+}
 
-	// Update the Sprite's position
-	i.player.Sprite.X = int(SubpixelsToPx(i.player.PositionX)) // Convert subpixels to screen coordinates
+func (s *HasPivotState) updatePosition() {
+	s.player.PositionX += s.player.VelocityX
+}
+
+func (s *HasPivotState) updateSpritePosition() {
+	s.player.Sprite.X = int(SubpixelsToPx(s.player.PositionX))
+}
+
+func (s *HasPivotState) checkJump() {
+	if s.input.JustPressed[A] {
+		s.player.setState(s.player.jumping)
+		s.player.MotionState = Airborne
+	}
 }
