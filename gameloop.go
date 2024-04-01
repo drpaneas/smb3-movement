@@ -8,8 +8,8 @@ import (
 
 const (
 	SpriteWidth = 16
-	RightBound  = screenWidth - SpriteWidth/2 - 8
-	LeftBound   = SpriteWidth/2 + 8 // anchor for the player is at the middle
+	RightBound  = screenWidth - SpriteWidth
+	LeftBound   = 0
 )
 
 func (g *Game) Update() error {
