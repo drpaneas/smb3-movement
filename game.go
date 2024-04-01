@@ -24,24 +24,11 @@ func newGame() *Game {
 	}
 
 	// Initialize states
-	idleState := &HasIdleState{
-		player: game.player,
-		input:  &game.joypad,
-	}
-
+	idleState := NewHasIdleState(game.player, &game.joypad)
 	jumpState := NewJumpState(game.player, &game.joypad)
-
 	walkState := NewWalkState(game.player, &game.joypad)
-
-	pivotState := &HasPivotState{
-		player: game.player,
-		input:  &game.joypad,
-	}
-
-	runState := &HasRunState{
-		player: game.player,
-		input:  &game.joypad,
-	}
+	pivotState := NewHasPivotState(game.player, &game.joypad)
+	runState := NewRunState(game.player, &game.joypad)
 
 	// Set the states
 	game.player.idle = idleState

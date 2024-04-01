@@ -1,66 +1,84 @@
 package main
 
-type HasRunState struct {
+const (
+	accelerationX spx = 0.5
+)
+
+type RunState struct {
 	player *Player
 	input  *Joypad
 }
 
-func (i *HasRunState) Update() {
-	if i.input.HoldDown[Left] && i.input.HoldDown[B] {
-		i.player.TargetVelocityX = -40
-	} else if i.input.HoldDown[Right] && i.input.HoldDown[B] {
-		i.player.TargetVelocityX = 40
-	} else if (i.input.HoldDown[Right] || i.input.HoldDown[Left]) && !i.input.HoldDown[B] {
-		i.player.setState(i.player.walking)
-		i.player.MotionState = Walk
+func NewRunState(player *Player, input *Joypad) *RunState {
+	return &RunState{
+		player: player,
+		input:  input,
+	}
+}
+
+func (s *RunState) Update() {
+	s.updateTargetVelocity()
+	s.updateVelocity()
+	s.applyVelocity()
+	s.checkBoundaries()
+	s.checkJump()
+	s.checkPivot()
+}
+
+func (s *RunState) updateTargetVelocity() {
+	if s.input.HoldDown[Left] && s.input.HoldDown[B] {
+		s.player.TargetVelocityX = -40
+	} else if s.input.HoldDown[Right] && s.input.HoldDown[B] {
+		s.player.TargetVelocityX = 40
+	} else if (s.input.HoldDown[Right] || s.input.HoldDown[Left]) && !s.input.HoldDown[B] {
+		s.player.setState(s.player.walking)
+		s.player.MotionState = Walk
 	} else {
-		i.player.TargetVelocityX = 0
+		s.player.TargetVelocityX = 0
 	}
+}
 
-	accelerationX = 0.5
-
-	if i.player.VelocityX < i.player.TargetVelocityX {
-		i.player.VelocityX += accelerationX // walk right
-	} else if i.player.VelocityX > i.player.TargetVelocityX {
-		i.player.VelocityX -= accelerationX // walk left
-	} else {
-		if i.player.VelocityX == 0 {
-			i.player.setState(i.player.idle)
-			i.player.MotionState = Idle
-		}
+func (s *RunState) updateVelocity() {
+	if s.player.VelocityX < s.player.TargetVelocityX {
+		s.player.VelocityX += accelerationX
+	} else if s.player.VelocityX > s.player.TargetVelocityX {
+		s.player.VelocityX -= accelerationX
+	} else if s.player.VelocityX == 0 {
+		s.player.setState(s.player.idle)
+		s.player.MotionState = Idle
 	}
+}
 
-	// Apply the velocity
-	i.player.PositionX += i.player.VelocityX
+func (s *RunState) applyVelocity() {
+	s.player.PositionX += s.player.VelocityX
+	s.player.Sprite.X = int(SubpixelsToPx(s.player.PositionX))
+}
 
-	// Update the Sprite's position
-	i.player.Sprite.X = int(SubpixelsToPx(i.player.PositionX)) // Convert subpixels to screen coordinates
-
-	// Check to see if the player has hit the screen boundaries
-	if i.player.Sprite.X > RightBound {
-		// Hit the right boundary: re-initialize the X variables and set the X velocity to 0
-		i.player.Sprite.X = RightBound
-		i.player.PositionX = PxToSubpixels(px(RightBound))
-		i.player.setState(i.player.idle)
-		i.player.MotionState = Idle
-	} else if i.player.Sprite.X < LeftBound {
-		// Hit the left boundary: re-initialize the X variables and set the X velocity to 0
-		i.player.Sprite.X = LeftBound
-		i.player.PositionX = PxToSubpixels(px(LeftBound))
-		i.player.setState(i.player.idle)
-		i.player.MotionState = Idle
+func (s *RunState) checkBoundaries() {
+	if s.player.Sprite.X > RightBound {
+		s.player.Sprite.X = RightBound
+		s.player.PositionX = PxToSubpixels(px(RightBound))
+		s.player.setState(s.player.idle)
+		s.player.MotionState = Idle
+	} else if s.player.Sprite.X < LeftBound {
+		s.player.Sprite.X = LeftBound
+		s.player.PositionX = PxToSubpixels(px(LeftBound))
+		s.player.setState(s.player.idle)
+		s.player.MotionState = Idle
 	}
+}
 
-	if i.input.JustPressed[A] {
-		i.player.setState(i.player.jumping)
-		i.player.MotionState = Airborne
-
+func (s *RunState) checkJump() {
+	if s.input.JustPressed[A] {
+		s.player.setState(s.player.jumping)
+		s.player.MotionState = Airborne
 	}
+}
 
-	if (i.input.HoldDown[Left] || i.input.HoldDown[Right] || i.input.JustPressed[Left] || i.input.JustPressed[Right]) &&
-		((i.player.TargetVelocityX > 0 && i.player.VelocityX < 0) || (i.player.TargetVelocityX < 0 && i.player.VelocityX > 0)) {
-
-		i.player.MotionState = Pivot
-		i.player.setState(i.player.pivoting)
+func (s *RunState) checkPivot() {
+	if (s.input.HoldDown[Left] || s.input.HoldDown[Right] || s.input.JustPressed[Left] || s.input.JustPressed[Right]) &&
+		((s.player.TargetVelocityX > 0 && s.player.VelocityX < 0) || (s.player.TargetVelocityX < 0 && s.player.VelocityX > 0)) {
+		s.player.MotionState = Pivot
+		s.player.setState(s.player.pivoting)
 	}
 }

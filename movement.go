@@ -43,7 +43,6 @@ const (
 )
 
 var decelerate spx = fastDeceleration
-var accelerationX spx = 0
 
 // updateJumpVelocity updates the vertical velocity of a player when he is airborne
 // it depends whether the A button is held down and how long it has been held down
@@ -118,6 +117,7 @@ func (p *Player) accelerateX(j Joypad) {
 	if p.MotionState == Airborne && p.TargetVelocityX == 0 {
 		return
 	}
+	var accelerationX spx
 
 	if p.MotionState == Walk {
 		accelerationX = 0.5
