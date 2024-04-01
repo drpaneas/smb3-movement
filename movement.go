@@ -19,15 +19,15 @@ func (p *Player) updateVerticalMotion(j Joypad) {
 		if j.JustPressed[A] {
 			p.VelocityY = p.JumpInitialVelocity
 			p.MotionState = Airborne
-			p.applyVelocityY()
-			p.Sprite.Y = int(SubpixelsToPx(p.PositionY))
-			slowJumpFramesCounter = 24
+			// p.applyVelocityY()
+			// p.Sprite.Y = int(SubpixelsToPx(p.PositionY))
+			// slowJumpFramesCounter = 24
 		} else {
 			// otherwise, the player is not airborne, and he is not going to jump in this frame
 			p.VelocityY = 0
 		}
 	} else {
-		slowJumpFramesCounter--
+		// slowJumpFramesCounter--
 		// if the player is airborne, then he is going to fall in this frame
 		p.updateJumpVelocity(j)
 		p.applyVelocityY()
@@ -42,25 +42,24 @@ const (
 	fastDeceleration spx = 5
 )
 
-var slowJumpFramesCounter = 25
 var decelerate spx = fastDeceleration
 var accelerationX spx = 0
 
 // updateJumpVelocity updates the vertical velocity of a player when he is airborne
 // it depends whether the A button is held down and how long it has been held down
 func (p *Player) updateJumpVelocity(j Joypad) {
-	if slowJumpFramesCounter > 0 && j.HoldDown[A] {
-		decelerate = slowDeceleration
-	} else {
-		decelerate = fastDeceleration
-	}
+	// if slowJumpFramesCounter > 0 && j.HoldDown[A] {
+	// 	decelerate = slowDeceleration
+	// } else {
+	// 	decelerate = fastDeceleration
+	// }
 
 	// the velocity decreases by the deceleration rate, until it reaches the maximum fall speed
 	p.VelocityY -= decelerate
 
 	// Has it reached the maximum falling speed?
-	if p.VelocityY <= p.JumpMaxFallSpeed {
-		p.VelocityY = p.JumpMaxFallSpeed
+	if p.VelocityY <= p.MaxFallSpeed {
+		p.VelocityY = p.MaxFallSpeed
 	}
 }
 

@@ -1,79 +1,102 @@
 package main
 
-import "fmt"
-
-type HasJumpState struct {
-	player *Player
-	input  *Joypad
+// JumpState is the airborn state of Mario from the moment the player is in the air until it lands back down to the ground
+type JumpState struct {
+	player               *Player
+	input                *Joypad
+	slowJumpFrames       int
+	slowDeceleration     spx
+	fastDeceleration     spx
+	initialVelocity      spx
+	veryFastDeceleration spx
+	isFirstJumpFrame     bool
 }
 
-func (i *HasJumpState) Update() {
-	slowJumpFramesCounter--
-
-	// If A is pressed, it will decelerate faster
-	if slowJumpFramesCounter > 0 && i.input.HoldDown[A] {
-		decelerate = slowDeceleration
-	} else {
-		decelerate = fastDeceleration
+func NewJumpState(player *Player, input *Joypad) *JumpState {
+	return &JumpState{
+		player:               player,
+		input:                input,
+		slowJumpFrames:       24,
+		slowDeceleration:     1,
+		fastDeceleration:     5,
+		initialVelocity:      55,
+		veryFastDeceleration: -64,
+		isFirstJumpFrame:     true,
 	}
+}
 
-	// the velocity decreases by the deceleration rate, until it reaches the maximum fall speed
-	i.player.VelocityY -= decelerate
+func (s *JumpState) Update() {
+	s.updateVerticalMotion()
+	s.updateHorizontalMotion()
+	s.boundCheck()
+}
 
-	// Has it reached the maximum falling speed?
-	if i.player.VelocityY <= i.player.JumpMaxFallSpeed {
-		i.player.VelocityY = i.player.JumpMaxFallSpeed
-	}
-
-	// Update the Position Y
-	i.player.PositionY -= i.player.VelocityY
-
-	// Apply the position to the Sprite coordinates
-	i.player.Sprite.Y = int(SubpixelsToPx(i.player.PositionY))
-
-	// Check for direction change mid-air
-	if i.player.PositionY > FloorHeight {
-		fmt.Println("Mid air")
-		if i.input.HoldDown[Left] && i.player.VelocityX > 0 {
-			i.player.VelocityX -= 1
-
-		} else if i.input.HoldDown[Right] && i.player.VelocityX < 0 {
-			i.player.VelocityX += 1
-		} else if i.input.HoldDown[Left] && i.player.VelocityX < 0 {
-			if i.player.VelocityX > i.player.TargetVelocityX {
-				i.player.VelocityX -= 0.5 // walk left
-			}
-			fmt.Println(i.player.VelocityX)
-		} else if i.input.HoldDown[Right] && i.player.VelocityX > 0 {
-			if i.player.VelocityX < i.player.TargetVelocityX {
-				i.player.VelocityX += 0.5 // walk right
-			}
-			fmt.Println(i.player.VelocityX)
-		}
-	}
-
-	// Apply the velocity X
-	i.player.PositionX += i.player.VelocityX
-
-	// Update the Sprite's X position
-	i.player.Sprite.X = int(SubpixelsToPx(i.player.PositionX)) // Convert subpixels to screen coordinates
-
-	// Check to see if the player has landed
-	if i.player.Sprite.Y >= FloorHeight {
-		// Land by re-initializing the Y variables and resetting the motion state
-		i.player.ResetY()
-
-		if i.player.VelocityX != 0 {
-			i.player.setState(i.player.walking)
-			i.player.MotionState = Walk
-			if i.input.HoldDown[A] {
-				i.player.setState(i.player.running)
-				i.player.MotionState = Walk
-			}
+func (s *JumpState) boundCheck() {
+	if s.player.Sprite.Y >= FloorHeight {
+		s.player.ResetY()
+		if s.player.VelocityX != 0 {
+			s.isFirstJumpFrame = true
+			s.player.setState(s.player.walking)
+			s.player.MotionState = Walk
 		} else {
-			i.player.MotionState = Idle
-			i.player.setState(i.player.idle)
-			i.player.MotionState = Idle
+			s.isFirstJumpFrame = true
+			s.player.setState(s.player.idle)
+			s.player.MotionState = Idle
 		}
 	}
+}
+
+func (s *JumpState) updateMidAir() {
+	if s.input.HoldDown[Left] && s.player.VelocityX > 0 {
+		s.player.VelocityX -= 1
+	} else if s.input.HoldDown[Right] && s.player.VelocityX < 0 {
+		s.player.VelocityX += 1
+	} else if s.input.HoldDown[Left] && s.player.VelocityX < 0 {
+		if s.player.VelocityX > s.player.TargetVelocityX {
+			s.player.VelocityX -= 0.5 // walk left
+		}
+	} else if s.input.HoldDown[Right] && s.player.VelocityX > 0 {
+		if s.player.VelocityX < s.player.TargetVelocityX {
+			s.player.VelocityX += 0.5 // walk right
+		}
+	}
+}
+
+func (s *JumpState) updateVerticalMotion() {
+	if s.isFirstJumpFrame {
+		s.isFirstJumpFrame = false
+		s.player.VelocityY = s.initialVelocity
+		s.player.PositionY -= s.player.VelocityY
+		s.player.Sprite.Y = int(SubpixelsToPx(s.player.PositionY))
+		s.slowJumpFrames = 24
+	}
+
+	// If A is _not_ pressed, it will decelerate faster
+	decelerate := s.fastDeceleration
+	s.slowJumpFrames--
+	if s.slowJumpFrames > 0 && s.input.HoldDown[A] {
+		decelerate = s.slowDeceleration
+	}
+
+	// Velocity decreases by the deceleration rate, until it reaches the maximum fall speed
+	s.player.VelocityY -= decelerate
+	if s.player.VelocityY <= s.veryFastDeceleration {
+		s.player.VelocityY = s.veryFastDeceleration
+	}
+
+	// Update the Position Y and apply it into the Sprite's screen coordinates
+	s.player.PositionY -= s.player.VelocityY
+	s.player.Sprite.Y = int(SubpixelsToPx(s.player.PositionY))
+}
+
+func (s *JumpState) updateHorizontalMotion() {
+	// Check for direction change mid-air
+	if s.player.PositionY > FloorHeight {
+		s.updateMidAir()
+	}
+
+	// Update the PositionX and apply it into the Sprite's screen coordinates
+	s.player.PositionX += s.player.VelocityX
+	s.player.Sprite.X = int(SubpixelsToPx(s.player.PositionX)) // Convert subpixels to screen coordinates
+
 }

@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 type HasRunState struct {
 	player *Player
 	input  *Joypad
@@ -54,14 +52,9 @@ func (i *HasRunState) Update() {
 	}
 
 	if i.input.HoldDown[A] {
-		fmt.Println("Jump")
 		i.player.setState(i.player.jumping)
 		i.player.MotionState = Airborne
 
-		i.player.VelocityY = i.player.JumpInitialVelocity
-		i.player.applyVelocityY()
-		i.player.Sprite.Y = int(SubpixelsToPx(i.player.PositionY))
-		slowJumpFramesCounter = 24
 	}
 
 	if (i.input.HoldDown[Left] || i.input.HoldDown[Right] || i.input.JustPressed[Left] || i.input.JustPressed[Right]) &&

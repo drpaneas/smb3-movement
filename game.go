@@ -29,10 +29,7 @@ func newGame() *Game {
 		input:  &game.joypad,
 	}
 
-	jumpState := &HasJumpState{
-		player: game.player,
-		input:  &game.joypad,
-	}
+	jumpState := NewJumpState(game.player, &game.joypad)
 
 	walkState := &HasWalkState{
 		player: game.player,

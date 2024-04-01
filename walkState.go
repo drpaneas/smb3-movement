@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type HasWalkState struct {
 	player *Player
 	input  *Joypad
@@ -49,23 +45,21 @@ func (i *HasWalkState) Update() {
 		i.player.PositionX = PxToSubpixels(px(RightBound))
 		i.player.setState(i.player.idle)
 		i.player.MotionState = Idle
+		i.player.VelocityX = 0 // Add this line to set X velocity to 0
+
 	} else if i.player.Sprite.X < LeftBound {
 		// Hit the left boundary: re-initialize the X variables and set the X velocity to 0
 		i.player.Sprite.X = LeftBound
 		i.player.PositionX = PxToSubpixels(px(LeftBound))
 		i.player.setState(i.player.idle)
 		i.player.MotionState = Idle
+		i.player.VelocityX = 0 // Add this line to set X velocity to 0
+
 	}
 
-	if i.input.HoldDown[A] {
-		fmt.Println("Jump")
+	if i.input.JustPressed[A] {
 		i.player.setState(i.player.jumping)
 		i.player.MotionState = Airborne
-
-		i.player.VelocityY = i.player.JumpInitialVelocity
-		i.player.applyVelocityY()
-		i.player.Sprite.Y = int(SubpixelsToPx(i.player.PositionY))
-		slowJumpFramesCounter = 24
 	}
 
 	if (i.input.HoldDown[Left] || i.input.HoldDown[Right] || i.input.JustPressed[Left] || i.input.JustPressed[Right]) &&

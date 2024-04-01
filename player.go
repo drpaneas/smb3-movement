@@ -49,7 +49,7 @@ type Player struct {
 
 	// Jump
 	JumpInitialVelocity spx
-	JumpMaxFallSpeed    spx
+	MaxFallSpeed        spx
 
 	// States
 	idle         State
@@ -99,7 +99,7 @@ func NewPlayer() *Player {
 
 		// Jump stuff
 		JumpInitialVelocity: 55,  // 55
-		JumpMaxFallSpeed:    -64, // -64
+		MaxFallSpeed:        -64, // -64
 
 		// State Machines
 		MotionState: Idle,
