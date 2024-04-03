@@ -1,8 +1,6 @@
 package main
 
-const (
-	accelerationX spx = 0.5
-)
+import "math"
 
 type RunState struct {
 	player *Player
@@ -27,21 +25,26 @@ func (s *RunState) Update() {
 
 func (s *RunState) updateTargetVelocity() {
 	if s.input.HoldDown[Left] && s.input.HoldDown[B] {
-		s.player.TargetVelocityX = -40
+		s.player.TargetVelocityX = -maxRunSpeed
 	} else if s.input.HoldDown[Right] && s.input.HoldDown[B] {
-		s.player.TargetVelocityX = 40
+		s.player.TargetVelocityX = maxRunSpeed
 	} else if (s.input.HoldDown[Right] || s.input.HoldDown[Left]) && !s.input.HoldDown[B] {
 		s.player.setState(s.player.walking)
 	} else {
 		s.player.TargetVelocityX = 0
 	}
+
+	// It never goes to exactly 0, so this is an approximation.
+	if math.Abs(s.player.VelocityX) <= 0.01 { // Adjust threshold as needed
+		s.player.setState(s.player.idle)
+	}
 }
 
 func (s *RunState) updateVelocity() {
 	if s.player.VelocityX < s.player.TargetVelocityX {
-		s.player.VelocityX += accelerationX
+		s.player.VelocityX += runAcceleration
 	} else if s.player.VelocityX > s.player.TargetVelocityX {
-		s.player.VelocityX -= accelerationX
+		s.player.VelocityX -= runAcceleration
 	} else if s.player.VelocityX == 0 {
 		s.player.setState(s.player.idle)
 	}
@@ -49,17 +52,17 @@ func (s *RunState) updateVelocity() {
 
 func (s *RunState) applyVelocity() {
 	s.player.PositionX += s.player.VelocityX
-	s.player.Sprite.X = int(SubpixelsToPx(s.player.PositionX))
+	s.player.Sprite.X = s.player.PositionX
 }
 
 func (s *RunState) checkBoundaries() {
 	if s.player.Sprite.X > RightBound {
 		s.player.Sprite.X = RightBound
-		s.player.PositionX = PxToSubpixels(px(RightBound))
+		s.player.PositionX = RightBound
 		s.player.setState(s.player.idle)
 	} else if s.player.Sprite.X < LeftBound {
 		s.player.Sprite.X = LeftBound
-		s.player.PositionX = PxToSubpixels(px(LeftBound))
+		s.player.PositionX = LeftBound
 		s.player.setState(s.player.idle)
 	}
 }

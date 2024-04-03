@@ -14,7 +14,7 @@ const (
 
 // X and Y should be in the same unit that Draw function supports in the GoPXL library
 type Sprite struct {
-	Y, X  int
+	Y, X  float64
 	SPR   *ebiten.Image
 	HFlip bool
 }
@@ -56,8 +56,9 @@ func (p *Player) updateAnimationFrame() {
 
 		if p.AnimationTimer == 0 {
 			// Reset frame timer
-			index := int(math.Abs(float64(p.VelocityX)))
+			index := int(math.Abs(float64(p.VelocityX))) * 15 // this is a total random thing but it works :P
 			p.AnimationTimer = delayByVelocity[index]
+			// fmt.Println(p.AnimationTimer)
 
 			// Toggle the frame (walk animation has 2 frames only)
 			p.AnimationFrame = 1 - p.AnimationFrame
@@ -73,7 +74,7 @@ func (p *Player) updateAnimationFrame() {
 //
 // --> Go Playground: https://go.dev/play/p/wvdjEdnOYi_D
 var delayByVelocity = []int{
-	8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2,
+	8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2,
 }
 
 // updateHeading updates the heading of the player

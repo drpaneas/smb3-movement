@@ -1,16 +1,14 @@
 package main
 
-import "fmt"
-
 // JumpState is the airborn state of Mario from the moment the player is in the air until it lands back down to the ground
 type JumpState struct {
 	player               *Player
 	input                *Joypad
 	slowJumpFrames       int
-	slowDeceleration     spx
-	fastDeceleration     spx
-	initialVelocity      spx
-	veryFastDeceleration spx
+	slowDeceleration     float64
+	fastDeceleration     float64
+	initialVelocity      float64
+	veryFastDeceleration float64
 	isFirstJumpFrame     bool
 }
 
@@ -19,10 +17,10 @@ func NewJumpState(player *Player, input *Joypad) *JumpState {
 		player:               player,
 		input:                input,
 		slowJumpFrames:       24,
-		slowDeceleration:     1,
-		fastDeceleration:     5,
-		initialVelocity:      55,
-		veryFastDeceleration: -64,
+		slowDeceleration:     0.06,
+		fastDeceleration:     0.19,
+		initialVelocity:      3.44,
+		veryFastDeceleration: -4,
 		isFirstJumpFrame:     true,
 	}
 }
@@ -47,18 +45,18 @@ func (s *JumpState) boundCheck() {
 }
 
 func (s *JumpState) updateMidAir() {
-	fmt.Printf("Target: %v, Current: %v\n", s.player.TargetVelocityX, s.player.VelocityX)
+	// fmt.Printf("Target: %v, Current: %v\n", s.player.TargetVelocityX, s.player.VelocityX)
 	if s.input.HoldDown[Left] && s.player.VelocityX > 0 {
-		s.player.VelocityX -= 1
+		s.player.VelocityX -= walkAcceleration
 	} else if s.input.HoldDown[Right] && s.player.VelocityX < 0 {
-		s.player.VelocityX += 1
+		s.player.VelocityX += walkAcceleration
 	} else if s.input.HoldDown[Left] && s.player.VelocityX <= 0 {
 		if s.player.VelocityX > s.player.TargetVelocityX {
-			s.player.VelocityX -= 1.5 // move left at the air
+			s.player.VelocityX -= 0.06 // move left at the air
 		}
 	} else if s.input.HoldDown[Right] && s.player.VelocityX >= 0 {
 		if s.player.VelocityX < s.player.TargetVelocityX {
-			s.player.VelocityX += 1.5 // move right at the air
+			s.player.VelocityX += 0.06 // move right at the air
 		}
 	}
 }
@@ -68,7 +66,7 @@ func (s *JumpState) updateVerticalMotion() {
 		s.isFirstJumpFrame = false
 		s.player.VelocityY = s.initialVelocity
 		s.player.PositionY -= s.player.VelocityY
-		s.player.Sprite.Y = int(SubpixelsToPx(s.player.PositionY))
+		s.player.Sprite.Y = s.player.PositionY
 		s.slowJumpFrames = 24
 	}
 
@@ -87,28 +85,34 @@ func (s *JumpState) updateVerticalMotion() {
 
 	// Update the Position Y and apply it into the Sprite's screen coordinates
 	s.player.PositionY -= s.player.VelocityY
-	s.player.Sprite.Y = int(SubpixelsToPx(s.player.PositionY))
+	s.player.Sprite.Y = s.player.PositionY
 }
 
 func (s *JumpState) updateHorizontalMotion() {
 	s.updateTargetVelocity()
 
 	// Check for direction change mid-air
-	if s.player.PositionY > FloorHeight {
+	if s.player.PositionY < FloorHeight {
 		s.updateMidAir()
 	}
 
 	// Update the PositionX and apply it into the Sprite's screen coordinates
 	s.player.PositionX += s.player.VelocityX
-	s.player.Sprite.X = int(SubpixelsToPx(s.player.PositionX)) // Convert subpixels to screen coordinates
+	s.player.Sprite.X = s.player.PositionX
 }
 
 func (js *JumpState) updateTargetVelocity() {
 	switch {
 	case js.input.HoldDown[Left]:
-		js.player.TargetVelocityX = -walkSpeed
+		js.player.TargetVelocityX = -maxWalkSpeed
+		if js.input.HoldDown[B] {
+			js.player.TargetVelocityX = -maxRunSpeed
+		}
 	case js.input.HoldDown[Right]:
-		js.player.TargetVelocityX = walkSpeed
+		js.player.TargetVelocityX = maxWalkSpeed
+		if js.input.HoldDown[B] {
+			js.player.TargetVelocityX = maxRunSpeed
+		}
 	default:
 		js.player.TargetVelocityX = 0
 	}

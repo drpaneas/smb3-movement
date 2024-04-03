@@ -31,6 +31,7 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 	ebiten.SetWindowTitle("SMB3 inspired movement")
 	ebiten.SetFullscreen(false)
+	ebiten.SetTPS(60)
 
 	game := newGame()
 

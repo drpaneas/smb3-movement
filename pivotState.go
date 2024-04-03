@@ -20,16 +20,15 @@ func (s *HasPivotState) Update() {
 }
 
 func (s *HasPivotState) updateVelocity() {
-	const walkSpeed = 1.5
 
 	switch {
 	case s.player.VelocityX < s.player.TargetVelocityX:
-		s.player.VelocityX += walkSpeed
+		s.player.VelocityX -= (walkAcceleration - walkDecel)
 		if s.player.VelocityX > 0 {
 			s.transitionState()
 		}
 	case s.player.VelocityX > s.player.TargetVelocityX:
-		s.player.VelocityX -= walkSpeed
+		s.player.VelocityX += (walkAcceleration - walkDecel)
 		if s.player.VelocityX < 0 {
 			s.transitionState()
 		}
@@ -49,7 +48,7 @@ func (s *HasPivotState) updatePosition() {
 }
 
 func (s *HasPivotState) updateSpritePosition() {
-	s.player.Sprite.X = int(SubpixelsToPx(s.player.PositionX))
+	s.player.Sprite.X = s.player.PositionX
 }
 
 func (s *HasPivotState) checkJump() {

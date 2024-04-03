@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
 	SpriteWidth = 16
 	RightBound  = screenWidth - SpriteWidth
-	LeftBound   = 0
+	LeftBound   = 10
 )
 
 func (g *Game) Update() error {
@@ -17,17 +15,17 @@ func (g *Game) Update() error {
 	g.player.currentState.Update() // 2. Update the player state movement (physics)
 	g.player.updateSprite()        // 3. Update the player's sprite & animation keyframes
 
-	if g.player.currentState == g.player.idle {
-		fmt.Println("idle")
-	} else if g.player.currentState == g.player.jumping {
-		fmt.Println("jumping")
-	} else if g.player.currentState == g.player.walking {
-		fmt.Println("walking")
-	} else if g.player.currentState == g.player.pivoting {
-		fmt.Println("pivoting")
-	} else if g.player.currentState == g.player.running {
-		fmt.Println("running")
-	}
+	// if g.player.currentState == g.player.idle {
+	// 	fmt.Println("idle")
+	// } else if g.player.currentState == g.player.jumping {
+	// 	fmt.Println("jumping")
+	// } else if g.player.currentState == g.player.walking {
+	// 	fmt.Println("walking")
+	// } else if g.player.currentState == g.player.pivoting {
+	// 	fmt.Println("pivoting")
+	// } else if g.player.currentState == g.player.running {
+	// 	fmt.Println("running")
+	// }
 	return nil
 }
 
@@ -44,12 +42,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
 		op.GeoM.Scale(-1, 1) // Flip horizontally
 		op.GeoM.Translate(float64(w)/2, float64(h)/2)
-		op.GeoM.Translate(float64(g.player.Sprite.X), float64(g.player.Sprite.Y))
+		op.GeoM.Translate(g.player.Sprite.X, g.player.Sprite.Y)
 		op.Filter = ebiten.FilterNearest
 		screen.DrawImage(g.player.Sprite.SPR, op)
 	} else {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(g.player.Sprite.X), float64(g.player.Sprite.Y))
+		op.GeoM.Translate(g.player.Sprite.X, g.player.Sprite.Y)
 		op.Filter = ebiten.FilterNearest
 		screen.DrawImage(g.player.Sprite.SPR, op)
 	}

@@ -1,8 +1,19 @@
 package main
 
+import (
+	"math"
+)
+
 const (
-	walkAcceleration = 0.5
-	walkSpeed        = 24
+	walkAcceleration     = 0.09
+	walkDecel            = 0.16
+	walkDecelerationStop = 0.06
+	runAcceleration      = 0.09
+	// runDeceleration      = 0.31
+
+	maxWalkSpeed   = 1.25 // $14 -> 20 subpixels is 1.25 pixels per frame (75 pixels per second at 60 FPS)
+	maxRunSpeed    = 2.25 // $24 -> 36 subpixels is 2.25 pixels per frame (135 pixels per second at 60 FPS)
+	maxPMeterSpeed = 3    // $30 -> 48 subpixels is 3.00 pixels per frame (180 pixels per second at 60 FPS)
 )
 
 type WalkState struct {
@@ -27,29 +38,51 @@ func (ws *WalkState) Update() {
 }
 
 func (ws *WalkState) updateTargetVelocity() {
-	switch {
-	case ws.input.HoldDown[Left]:
-		ws.player.TargetVelocityX = -walkSpeed
-	case ws.input.HoldDown[Right]:
-		ws.player.TargetVelocityX = walkSpeed
-	default:
-		ws.player.TargetVelocityX = 0
+
+	// Check for any horizontal movement input
+	isMovingLeft := ws.input.HoldDown[Left]
+	isMovingRight := ws.input.HoldDown[Right]
+
+	// Determine target velocity based on input
+	if isMovingLeft {
+		ws.player.TargetVelocityX = -maxWalkSpeed // Set negative for left movement
+	} else if isMovingRight {
+		ws.player.TargetVelocityX = maxWalkSpeed
+	} else {
+		ws.player.TargetVelocityX = 0 // Set to 0 if no movement input
 	}
+
 }
 
 func (ws *WalkState) updateVelocity() {
+	// fmt.Println(math.Abs(ws.player.VelocityX))
 	if ws.input.HoldDown[B] {
 		ws.player.setState(ws.player.running)
 		return
 	}
 
-	switch {
-	case ws.player.VelocityX < ws.player.TargetVelocityX:
-		ws.player.VelocityX += walkAcceleration
-	case ws.player.VelocityX > ws.player.TargetVelocityX:
-		ws.player.VelocityX -= walkAcceleration
-	default:
-		if ws.player.VelocityX == 0 {
+	if ws.player.TargetVelocityX == maxWalkSpeed {
+		if ws.player.VelocityX < ws.player.TargetVelocityX {
+			ws.player.VelocityX += walkAcceleration
+		}
+	}
+
+	if ws.player.TargetVelocityX == -maxWalkSpeed {
+		if ws.player.VelocityX > ws.player.TargetVelocityX {
+			ws.player.VelocityX -= walkAcceleration
+		}
+	}
+
+	if ws.player.TargetVelocityX == 0 {
+		if ws.player.VelocityX > 0 {
+			ws.player.VelocityX -= walkDecelerationStop
+		}
+		if ws.player.VelocityX < 0 {
+			ws.player.VelocityX += walkDecelerationStop
+		}
+
+		// It never goes to exactly 0, so this is an approximation.
+		if math.Abs(ws.player.VelocityX) <= 0.06 { // Adjust threshold as needed
 			ws.player.setState(ws.player.idle)
 		}
 	}
@@ -57,19 +90,19 @@ func (ws *WalkState) updateVelocity() {
 
 func (ws *WalkState) applyVelocity() {
 	ws.player.PositionX += ws.player.VelocityX
-	ws.player.Sprite.X = int(SubpixelsToPx(ws.player.PositionX))
+	ws.player.Sprite.X = ws.player.PositionX
 }
 
 func (ws *WalkState) checkBoundaries() {
 	switch {
 	case ws.player.Sprite.X > RightBound:
 		ws.player.Sprite.X = RightBound
-		ws.player.PositionX = PxToSubpixels(px(RightBound))
+		ws.player.PositionX = RightBound
 		ws.player.setState(ws.player.idle)
 		ws.player.VelocityX = 0
 	case ws.player.Sprite.X < LeftBound:
 		ws.player.Sprite.X = LeftBound
-		ws.player.PositionX = PxToSubpixels(px(LeftBound))
+		ws.player.PositionX = LeftBound
 		ws.player.setState(ws.player.idle)
 		ws.player.VelocityX = 0
 	}

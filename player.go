@@ -27,18 +27,18 @@ type Player struct {
 	Sprite   Sprite
 
 	// X axis
-	TargetVelocityX spx // desired velocity
-	VelocityX       spx // current velocity
-	PositionX       spx // current position
+	TargetVelocityX float64 // desired velocity
+	VelocityX       float64 // current velocity
+	PositionX       float64 // current position
 	Heading         Heading
 
 	// Y axis
-	VelocityY spx // current velocity
-	PositionY spx // current position
+	VelocityY float64 // current velocity
+	PositionY float64 // current position
 
 	// Jump
-	JumpInitialVelocity spx
-	MaxFallSpeed        spx
+	JumpInitialVelocity float64
+	MaxFallSpeed        float64
 
 	// States
 	idle         State
@@ -77,20 +77,19 @@ func NewPlayer() *Player {
 		// Initialize X axis and direction
 		TargetVelocityX: 0,
 		VelocityX:       0,
-		PositionX:       PxToSubpixels(px(InitialSpriteX)),
+		PositionX:       InitialSpriteX,
 		Heading:         FaceRight,
 
 		// Initialize Y axis
 		VelocityY: 0,
-		PositionY: PxToSubpixels(px(InitialSpriteY)),
+		PositionY: InitialSpriteY,
 
 		// Jump stuff
-		JumpInitialVelocity: 55,  // 55
-		MaxFallSpeed:        -64, // -64
+		JumpInitialVelocity: 55 * 0.00104 * 60,  // 55
+		MaxFallSpeed:        -64 * 0.00104 * 60, // -64
 
 		// Keyframes and animations
 		AnimationFrame: 0,
-		AnimationTimer: delayByVelocity[0],
 	}
 
 	return player
@@ -100,7 +99,7 @@ func NewPlayer() *Player {
 // This is used when the player lands on the ground after jumping or falling
 func (p *Player) ResetY() {
 	p.Sprite.Y = InitialSpriteY
-	p.PositionY = PxToSubpixels(px(InitialSpriteY))
+	p.PositionY = InitialSpriteY
 	p.VelocityY = 0
 }
 
